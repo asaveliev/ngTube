@@ -1,7 +1,7 @@
 ngTube
 ======
 
-http://asaveliev.github.io/prototype/index.html
+http://rawgit.com/asaveliev/ngTube/master/prototype/index.html
 
 # TODO 
 * Make directive
