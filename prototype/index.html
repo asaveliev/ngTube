@@ -5,6 +5,26 @@
 <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
 <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
 <style>
+	.youtubeplayer {
+		width: 50%;
+	}
+
+	.youtubeplayercontainer {
+		position: relative;
+		padding-bottom: 56.25%;
+		padding-top: 30px;
+		height: 0;
+		overflow: hidden;
+	}
+
+	.youtubeplayercontainer iframe, .youtubeplayercontainer object, .youtubeplayercontainer embed {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+	}
+
 	.youtubetimeline {
 	    height: 15px;
 	    margin-top: 10px;
@@ -38,106 +58,116 @@
 	}
 
 	angular.module('ngTube',[])
-	.controller("ngTube.Player",["$scope","$interval",function($scope,$interval){
-        
-        $scope.$on("playerAPIloaded", function () {
-			$scope.ytplayer = new YT.Player('youtubeplayer', {
-				playerVars: { 'autoplay': 0, 'controls': 0, 'iv_load_policy': 3, 'playsinline': 1, 'rel': 0, 'showinfo': 0, 'theme': 'light', wmode: 'opaque' },
-				events: {
-					'onReady': function () {
-						$scope.ytplayer.cueVideoByUrl({ 
-							mediaContentUrl: "https://www.youtube.com/v/QH2-TGUlwu4", 
-						});
-						$scope.ytplayer.mute();
-						$scope.ytplayer.playVideo();
+	.directive("ngTube", function(){
+		return {
+			restrict: "E",
+			scope : {
+				mediaUrl : "@"
+			},
+		    template : ""+
+				"<div class='youtubeplayer'> "+
+					"<div class='youtubeplayercontainer'> "+
+				    	"<div id='youtubeplayer'></div> "+
+					"</div> "+
+				    "<div class='youtubetimeline'> "+
+				        "<div class='timeline' ng-click='scrollTo($event)''></div> "+
+				        "<div class='currentposition'></div> "+
+				    "</div> "+
+				    "<button ng-click='goBack()''><span class='glyphicon glyphicon-repeat'></span> 10s</button> "+
+				    "<button ng-class=\"{'btn-success':ytplayer.getPlayerState() != 1,'btn-warning':ytplayer.getPlayerState() == 1}\" ng-click='playPause()''><span class='glyphicon glyphicon-play'></span> <span class='glyphicon glyphicon-pause'></span></button> "+
+				    "<button ng-class=\"{'btn-success':ytplayer.isMuted() != 1,'btn-warning':ytplayer.isMuted() == 1}\" ng-click='mute()'><span class='glyphicon glyphicon-volume-off'></span></button> "+
+				"</div> "
+		    ,
+		    controller : ["$scope","$interval",function($scope,$interval){
+		        $scope.$on("playerAPIloaded", function () {
+					$scope.ytplayer = new YT.Player('youtubeplayer', {
+						playerVars: { 'autoplay': 0, 'controls': 0, 'iv_load_policy': 3, 'playsinline': 1, 
+							'rel': 0, 'showinfo': 0, 'theme': 'light', wmode: 'opaque' },
+						events: {
+							'onReady': function () {
+								
+								$scope.ytplayer.cueVideoByUrl({ 
+									mediaContentUrl: $scope.mediaUrl 
+								});
 
-						var timeDetector = $interval(function(){
-							if ($scope.ytplayer.getDuration() > 0) {
-								$scope.ytplayer.pauseVideo();
-							    //$scope.ytplayer.unMute();
+								$scope.ytplayer.mute();
+								$scope.ytplayer.playVideo();
 
-								var width = document.querySelector(".youtubetimeline .timeline").offsetWidth;
-								$scope.scrollRatio  = width / $scope.ytplayer.getDuration();
-								$scope.ytplayer.seekTo(0);
-								$interval.cancel(timeDetector);
+								var timeDetector = $interval(function(){
+									if ($scope.ytplayer.getDuration() > 0) {
+										$scope.ytplayer.pauseVideo();
+									    //$scope.ytplayer.unMute();
+
+										var width = document.querySelector(".youtubetimeline .timeline").offsetWidth;
+										$scope.scrollRatio  = width / $scope.ytplayer.getDuration();
+										$scope.ytplayer.seekTo(0);
+										$interval.cancel(timeDetector);
+									}
+								},20);
+
 							}
-						},20);
+						}
+					});
+				});
 
-					}
-				}
-			});
-		});
+				var scroller = $interval(function () {
+					if ($scope.ytplayer && $scope.ytplayer.getCurrentTime) {
+						$scope.currentTime = $scope.ytplayer.getCurrentTime();
+			            setPosition($scope.currentTime);
+			        }
+				},100);
 
-		var scroller = $interval(function () {
-			if ($scope.ytplayer && $scope.ytplayer.getCurrentTime) {
-				$scope.currentTime = $scope.ytplayer.getCurrentTime();
-	            setPosition($scope.currentTime);
-	        }
-		},100);
-
-        $scope.$on("$destroy", function () {
-          if (angular.isDefined(scroller)) {
-            interval.cancel(scroller);
-            scroller = undefined;
-          }
-        });
+		        $scope.$on("$destroy", function () {
+		          if (angular.isDefined(scroller)) {
+		            interval.cancel(scroller);
+		            scroller = undefined;
+		          }
+		        });
 
 
-        var setPosition = function (time) {
-          var position = time * $scope.scrollRatio;
-          document.querySelector(".youtubetimeline .currentposition").style.left = position + "px";
-        }
+		        var setPosition = function (time) {
+		          var position = time * $scope.scrollRatio;
+		          document.querySelector(".youtubetimeline .currentposition").style.left = position + "px";
+		        }
 
-        $scope.playPause = function () {
-          if ($scope.ytplayer.getPlayerState() == 1)
-            $scope.ytplayer.pauseVideo();
-          else
-            $scope.ytplayer.playVideo();
-        }
+		        $scope.playPause = function () {
+		          if ($scope.ytplayer.getPlayerState() == 1)
+		            $scope.ytplayer.pauseVideo();
+		          else
+		            $scope.ytplayer.playVideo();
+		        }
 
-        $scope.goBack = function () {
-          var curtime = $scope.ytplayer.getCurrentTime();
-          $scope.ytplayer.seekTo(curtime - 10);
-        }
+		        $scope.goBack = function () {
+		          var curtime = $scope.ytplayer.getCurrentTime();
+		          $scope.ytplayer.seekTo(curtime - 10);
+		        }
 
-        $scope.mute = function () {
-        	if ($scope.ytplayer.isMuted())
-        		$scope.ytplayer.unMute();
-        	else
-        		$scope.ytplayer.mute();
-        }
+		        $scope.mute = function () {
+		        	if ($scope.ytplayer.isMuted())
+		        		$scope.ytplayer.unMute();
+		        	else
+		        		$scope.ytplayer.mute();
+		        }
 
-        $scope.scrollTo = function (event) {
-          var clickedon = event.offsetX;
-          var position = clickedon / $scope.scrollRatio;
-          scrollPlayer(position);
-        }
+		        $scope.scrollTo = function (event) {
+		          var clickedon = event.offsetX;
+		          var position = clickedon / $scope.scrollRatio;
+		          scrollPlayer(position);
+		        }
 
-        var scrollPlayer = function (position) {
-          $scope.ytplayer.seekTo(position);
-          setCurrentHighlight(position);
-        }
+		        var scrollPlayer = function (position) {
+		          $scope.ytplayer.seekTo(position);
+		          setCurrentHighlight(position);
+		        }
 
-
-     }]);
+		    }]
+   		}
+   	});
 
 </script>
 </head>
 <body ng-app="ngTube">
-	<div ng-controller="ngTube.Player">
-	    <div id="youtubeplayer" class="youtubeplayer"></div>
-
-	    <div class="youtubetimeline">
-	        <div class="timeline" ng-click="scrollTo($event)"></div>
-	        <div class="currentposition"></div>
-	    </div>
-
-	    <button ng-click="goBack()"><span class="glyphicon glyphicon-repeat"></span> 10s</button>
-	    <button ng-class="{'btn-success':ytplayer.getPlayerState() != 1,'btn-warning':ytplayer.getPlayerState() == 1}" ng-click="playPause()"><span class="glyphicon glyphicon-play"></span> <span class="glyphicon glyphicon-pause"></span></button>
-
-	    <button ng-class="{'btn-success':ytplayer.isMuted() != 1,'btn-warning':ytplayer.isMuted() == 1}" ng-click="mute()"><span class="glyphicon glyphicon-volume-off"></span></button>
-
-	</div>
+	<ng-tube media-url="https://www.youtube.com/v/QH2-TGUlwu4" />
 
     <script async src="https://www.youtube.com/iframe_api"></script>
 
