@@ -10,10 +10,6 @@
 	overflow: hidden;
 }
 
-.ngtubecontrols {
-	border: 1px solid black;
-}
-
 input.ngtubevolume {
 	display: inline;
 	width: 100px;
@@ -76,6 +72,7 @@ input.ngtubevolume {
     z-index: 1002;
     position: relative;
     background-color: white;
+    cursor: pointer;
 }
 
 .ngtubetimer {

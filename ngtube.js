@@ -6,8 +6,6 @@ angular.module('ngTube',[])
 .directive("ngTube", function(){
 	return {
 		restrict: "E",
-		replace: true,
-		transclude: false,
 		scope : {
 			mediaUrl : "@"
 		},
@@ -86,9 +84,13 @@ angular.module('ngTube',[])
 
 
 		},
-	    template : ""+
-			"<div class='ngtubeplayer'> "+
-				"<div class='ngtubeplayercontainer'> "+
+	    template : function(element, attrs) {
+	    	if (element.html() != "")
+	    		return element.html();
+	    	else
+		    return ""+
+			"<div class='ngtubeplayer'>"+
+				"bar<div class='ngtubeplayercontainer'> "+
 					"<div class='ngtubedraginterceptor'></div>"+
 			    	"<div id='youtubeplayer'></div> "+
 				"</div>"+
@@ -97,14 +99,16 @@ angular.module('ngTube',[])
 			        "<div class='currentposition' ng-style=\"{'left':leftOffset}\"></div> "+
 			    "</div> "+
 			    "<div class='ngtubecontrols'>"+
-				    "<button ng-click='goBack()''><span class='glyphicon glyphicon-repeat'></span> 10s</button> "+
-				    "<button ng-class=\"{'btn-success':playerState != 1,'btn-warning':playerState == 1}\" ng-click='playPause()''><span class='glyphicon glyphicon-play'></span> <span class='glyphicon glyphicon-pause'></span></button> "+
-				    "<button ng-class=\"{'btn-success':isMuted != 1,'btn-warning':isMuted == 1}\" ng-click='mute()'><span class='glyphicon glyphicon-volume-off'></span></button> "+
+				    "<button ng-click='goBack()'>&lt; 10s</button> "+
+				    "<button ng-click='playPause()''>"+
+				    	"<span ng-show='playerState != 1'>&gt;</span><span ng-show='playerState == 1'>||</span></button> "+
+				    "<button ng-click='mute()'>"+
+				    	"<span ng-show='isMuted'>Mute</span><span ng-show='!isMuted'>Unmute</span></button> "+
 				    "<input class='ngtubevolume' type='range' min='0' max='100' ng-model='volume'></input>" +
 				    "<span class='ngtubetimer'>{{currentTime}} / {{duration}}</span>" +
 			    "</div>" +
 			"</div> "
-	    ,
+		},
 	    controller : ["$scope","$interval",function($scope,$interval){
 	        $scope.$on("playerAPIloaded", function () {
 				$scope.ytplayer = new YT.Player('youtubeplayer', {
@@ -116,9 +120,9 @@ angular.module('ngTube',[])
 							$scope.cueVideo();
 
 							$scope.ytplayer.mute();
-							$scope.ytplayer.playVideo();
 							$scope.volume = $scope.ytplayer.getVolume();
 
+							$scope.ytplayer.playVideo();
 							var timeDetector = $interval(function(){
 								if ($scope.ytplayer.getDuration() > 0) {
 									$scope.duration = $scope.ytplayer.getDuration();
@@ -151,7 +155,7 @@ angular.module('ngTube',[])
 					$scope.ytplayer.setVolume(volume);
 			});
 
-			var scroller = $interval(function () {
+			/*var scroller = $interval(function () {
 				if ($scope.ytplayer && $scope.ytplayer.getCurrentTime) {
 					$scope.currentTime = $scope.ytplayer.getCurrentTime();
 
@@ -161,7 +165,7 @@ angular.module('ngTube',[])
 					if (!$scope.dragging)
 		            	$scope.setPosition($scope.currentTime * $scope.scrollRatio);
 		        }
-			},100);
+			},100);*/
 
 	        $scope.$on("$destroy", function () {
 	          if (angular.isDefined(scroller)) {
