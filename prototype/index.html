@@ -4,12 +4,13 @@
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.19/angular.min.js"></script>
 <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
 <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+
 <style>
-	.youtubeplayer {
+	.ngtubeplayer {
 		width: 50%;
 	}
 
-	.youtubeplayercontainer {
+	.ngtubeplayercontainer {
 		position: relative;
 		padding-bottom: 56.25%;
 		padding-top: 30px;
@@ -17,42 +18,75 @@
 		overflow: hidden;
 	}
 
-	.youtubeplayercontainer iframe, .youtubeplayercontainer object, .youtubeplayercontainer embed {
+	.ngtubecontrols {
+		border: 1px solid black;
+	}
+
+	input.ngtubevolume {
+		display: inline;
+		width: 100px;
+		height: 12px;
+		margin-top: 6px;
+	}
+
+	.ngtubedraginterceptor {
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		z-index: 1001;
+		pointer-events: none;
+	}
+
+	.ngtubeplayercontainer iframe, .ngtubeplayercontainer object, .ngtubeplayercontainer embed {
 		position: absolute;
 		top: 0;
 		left: 0;
 		width: 100%;
 		height: 100%;
+		z-index: 1000;
 	}
 
-	.youtubetimeline {
+	.ngtubetimeline {
 	    height: 15px;
-	    margin-top: -10px;
+	    margin-top: -8px;
 	}
 
-	.youtubetimeline .currentposition {
+	.ngtubetimeline .currentposition {
 	    top: 0px;
-	    left: 0px;
-	    width: 10px;
-	    height: 10px;
-		border: 5px solid #eaeaea;
-		background: #aeaeae;
+	    width: 14px;
+	    height: 14px;
+		border: 3px solid #eaeaea;
+		background-color: #aeaeae;
 		border-radius: 8px;
-	    margin-top: -12px;
-	    z-index: 300;
+	    margin-top: -11px;
+	    z-index: 1003;
 	    box-shadow: 0px 0px 10px blue;
 		cursor:pointer;
-  	}
-	.youtubetimeline .currentposition:hover {
-	}
+	    position: relative;
 
-	.youtubetimeline .timeline {
+		-webkit-touch-callout: none;
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+  	}
+	.ngtubetimeline .currentposition:hover {
+		background-color: red;
+	}
+	
+
+	.ngtubetimeline .timeline {
 	    width: 100%;
-	    height: 10px;
+	    height: 8px;
 	    border: 1px solid black;
-	    z-index: 200;
+	    z-index: 1002;
 	    position: relative;
 	    background-color: white;
+	}
+
+	.ngtubetimer {
+
 	}
 </style>
 <script>
@@ -76,6 +110,7 @@
 
 
 				$scope.dragging = false;
+				var lastDraggedPosition = 0;
 
 				element[0].querySelector(".timeline").addEventListener(
 		            'click',
@@ -85,54 +120,78 @@
 		            false
 		        );
 
-				var el = element[0].querySelector(".currentposition")
+				var el = element[0].querySelector(".currentposition");
+				var interceptor = element[0].querySelector(".ngtubedraginterceptor");
+				var timeline = element[0].querySelector(".timeline");
 
+		        $scope.cursorSize = el.offsetWidth;
+				$scope.scrollWidth = timeline.offsetWidth;
 
 				el.addEventListener(
-		            'dragstart',
+		            'onselectstart',
 		            function(e) {
-		                $scope.dragging = true;
-		            },
-		            false
+		            	return false;
+		            }
+		        );
+
+				document.addEventListener(
+		            'mousedown',
+		            function(e) {
+		            	if (el === e.target) {
+		                	$scope.dragging = true;
+		                	interceptor.style.pointerEvents = "auto";
+		                	document.body.style.userSelect = "none";
+		            	}
+		                return true;
+		            }
 		        );
 
 
-				el.addEventListener(
-		            'drag',
+				document.addEventListener(
+		            'mousemove',
 		            function(e) {
-		            	console.log("drag - " + e.x);
-		                $scope.setPosition(e.x);
-		                $scope.$digest();
-		            },
-		            false
+		            	var pos = e.x - timeline.offsetLeft;
+		            	if ($scope.dragging && pos < $scope.scrollWidth && pos >=0 ) {
+		                	$scope.setPosition(pos);
+		                	lastDraggedPosition = pos;
+		                	$scope.$digest();
+		                }
+		                return true;
+		            }
 		        );
 
-				el.addEventListener(
-		            'dragend',
+				document.addEventListener(
+		            'mouseup',
 		            function(e) {
-		            	console.log("end - " + e.x);
-		                $scope.dragging = false;
-		            	$scope.scrollTo(e.x);
-		            },
-		            false
+		            	if ($scope.dragging) { 
+			                $scope.dragging = false;
+			            	$scope.scrollTo(lastDraggedPosition);
+			                interceptor.style.pointerEvents = "none";
+			                document.body.style.userSelect = "auto";
+		            	}
+		                return true;
+		            }
 		        );
 
-		        $scope.cursorSize = element[0].querySelector(".youtubetimeline .currentposition").offsetWidth;
-				$scope.scrollWidth = element[0].querySelector(".youtubetimeline .timeline").offsetWidth;
 
 			},
 		    template : ""+
-				"<div class='youtubeplayer'> "+
-					"<div class='youtubeplayercontainer'> "+
+				"<div class='ngtubeplayer'> "+
+					"<div class='ngtubeplayercontainer'> "+
+						"<div class='ngtubedraginterceptor'></div>"+
 				    	"<div id='youtubeplayer'></div> "+
-					"</div> "+
-				    "<div class='youtubetimeline'> "+
+					"</div>"+
+				    "<div class='ngtubetimeline'> "+
 				        "<div class='timeline'></div> "+
-				        "<div draggable='true' class='currentposition' ng-style=\"{'left':leftOffset}\"></div> "+
+				        "<div class='currentposition' ng-style=\"{'left':leftOffset}\"></div> "+
 				    "</div> "+
-				    "<button ng-click='goBack()''><span class='glyphicon glyphicon-repeat'></span> 10s</button> "+
-				    "<button ng-class=\"{'btn-success':ytplayer.getPlayerState() != 1,'btn-warning':ytplayer.getPlayerState() == 1}\" ng-click='playPause()''><span class='glyphicon glyphicon-play'></span> <span class='glyphicon glyphicon-pause'></span></button> "+
-				    "<button ng-class=\"{'btn-success':ytplayer.isMuted() != 1,'btn-warning':ytplayer.isMuted() == 1}\" ng-click='mute()'><span class='glyphicon glyphicon-volume-off'></span></button> "+
+				    "<div class='ngtubecontrols'>"+
+					    "<button ng-click='goBack()''><span class='glyphicon glyphicon-repeat'></span> 10s</button> "+
+					    "<button ng-class=\"{'btn-success':playerState != 1,'btn-warning':playerState == 1}\" ng-click='playPause()''><span class='glyphicon glyphicon-play'></span> <span class='glyphicon glyphicon-pause'></span></button> "+
+					    "<button ng-class=\"{'btn-success':isMuted != 1,'btn-warning':isMuted == 1}\" ng-click='mute()'><span class='glyphicon glyphicon-volume-off'></span></button> "+
+					    "<input class='ngtubevolume' type='range' min='0' max='100' ng-model='volume'></input>" +
+					    "<span class='ngtubetimer'>{{currentTime}} / {{duration}}</span>" +
+				    "</div>" +
 				"</div> "
 		    ,
 		    controller : ["$scope","$interval",function($scope,$interval){
@@ -143,19 +202,19 @@
 						events: {
 							'onReady': function () {
 								
-								$scope.ytplayer.cueVideoByUrl({ 
-									mediaContentUrl: $scope.mediaUrl 
-								});
+								$scope.cueVideo();
 
 								$scope.ytplayer.mute();
 								$scope.ytplayer.playVideo();
+								$scope.volume = $scope.ytplayer.getVolume();
 
 								var timeDetector = $interval(function(){
 									if ($scope.ytplayer.getDuration() > 0) {
+										$scope.duration = $scope.ytplayer.getDuration();
 										$scope.ytplayer.pauseVideo();
-									    $scope.ytplayer.unMute();
+									    //$scope.ytplayer.unMute();
 
-										$scope.scrollRatio  = $scope.scrollWidth / $scope.ytplayer.getDuration();
+										$scope.scrollRatio  = $scope.scrollWidth / $scope.duration;
 										$scope.ytplayer.seekTo(0);
 										$interval.cancel(timeDetector);
 									}
@@ -166,10 +225,28 @@
 					});
 				});
 
+				$scope.playerState = 0;
+				$scope.isMuted = false;
+				$scope.volume = 0;
+
+				$scope.cueVideo = function(){
+					$scope.ytplayer.cueVideoByUrl({ 
+						mediaContentUrl: $scope.mediaUrl 
+					});
+				}
+
+				$scope.$watch("volume",function(volume){
+					if ($scope.ytplayer)
+						$scope.ytplayer.setVolume(volume);
+				});
+
 				var scroller = $interval(function () {
 					if ($scope.ytplayer && $scope.ytplayer.getCurrentTime) {
 						$scope.currentTime = $scope.ytplayer.getCurrentTime();
-						
+
+						$scope.playerState = ytplayer.getPlayerState();
+						$scope.isMuted = ytplayer.isMuted();
+
 						if (!$scope.dragging)
 			            	$scope.setPosition($scope.currentTime * $scope.scrollRatio);
 			        }
@@ -194,8 +271,7 @@
 		        }
 
 		        $scope.goBack = function () {
-		          var curtime = $scope.ytplayer.getCurrentTime();
-		          $scope.ytplayer.seekTo(curtime - 10);
+		          $scope.ytplayer.seekTo($scope.currentTime - 10);
 		        }
 
 		        $scope.mute = function () {
@@ -207,12 +283,8 @@
 
 		        $scope.scrollTo = function (x) {
 		          var position = x / $scope.scrollRatio;
-		          scrollPlayer(position);
-		          $scope.setPosition(x);
-		        }
-
-		        var scrollPlayer = function (position) {
 		          $scope.ytplayer.seekTo(position);
+		          $scope.setPosition(x);
 		        }
 
 		    }]
@@ -222,6 +294,8 @@
 </script>
 </head>
 <body ng-app="ngTube">
-	<ng-tube media-url="https://www.youtube.com/v/QH2-TGUlwu4" />
+	<div style="padding-left: 50px">
+		<ng-tube media-url="https://www.youtube.com/v/QH2-TGUlwu4" />
+	</div>
 </body>
 </html>

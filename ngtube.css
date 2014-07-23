@@ -1,0 +1,83 @@
+.ngtubeplayer {
+	width: 50%;
+}
+
+.ngtubeplayercontainer {
+	position: relative;
+	padding-bottom: 56.25%;
+	padding-top: 30px;
+	height: 0;
+	overflow: hidden;
+}
+
+.ngtubecontrols {
+	border: 1px solid black;
+}
+
+input.ngtubevolume {
+	display: inline;
+	width: 100px;
+	height: 12px;
+	margin-top: 6px;
+}
+
+.ngtubedraginterceptor {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	z-index: 1001;
+	pointer-events: none;
+}
+
+.ngtubeplayercontainer iframe, .ngtubeplayercontainer object, .ngtubeplayercontainer embed {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1000;
+}
+
+.ngtubetimeline {
+    height: 15px;
+    margin-top: -8px;
+}
+
+.ngtubetimeline .currentposition {
+    top: 0px;
+    width: 14px;
+    height: 14px;
+	border: 3px solid #eaeaea;
+	background-color: #aeaeae;
+	border-radius: 8px;
+    margin-top: -11px;
+    z-index: 1003;
+    box-shadow: 0px 0px 10px blue;
+	cursor:pointer;
+    position: relative;
+
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.ngtubetimeline .currentposition:hover {
+	background-color: red;
+}
+
+
+.ngtubetimeline .timeline {
+    width: 100%;
+    height: 8px;
+    border: 1px solid black;
+    z-index: 1002;
+    position: relative;
+    background-color: white;
+}
+
+.ngtubetimer {
+
+}
