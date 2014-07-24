@@ -1,13 +1,13 @@
 	<!DOCTYPE html>
 <html>
 <head>
-<!--script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.19/angular.min.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.19/angular.min.js"></script>
 <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
-<link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" -->
+<link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
 
-<script type="text/javascript" src="lib/angular.min.js"></script>
+<!--script type="text/javascript" src="lib/angular.min.js"></script>
 <link href="lib/bootstrap.min.css" rel="stylesheet">
-<link href="lib/font-awesome.css" rel="stylesheet">
+<link href="lib/font-awesome.css" rel="stylesheet"-->
 
 
 <link href="ngtube.css" rel="stylesheet">
@@ -47,7 +47,7 @@ angular.module("myApp",["ngTube"],function(){});
 			    <div class='ngtubecontrols'>
 				    <button class="btn" ng-click='goBack()'><span class='glyphicon glyphicon-repeat'></span> 10s</button> 
 				    <button class="btn" ng-class="{'btn-success':playerState != 1,'btn-warning':playerState == 1}" ng-click='playPause()'><span class='glyphicon glyphicon-play'></span> <span class='glyphicon glyphicon-pause'></span></button> 
-				    <button class="btn" ng-class="{'btn-success':isMuted,'btn-warning':!isMuted}" ng-click='mute()'><span class='glyphicon glyphicon-volume-off'></span></button> 
+				    <button class="btn" ng-class="{'btn-success':!isMuted,'btn-warning':isMuted}" ng-click='mute()'><span class='glyphicon glyphicon-volume-off'></span></button> 
 				    <input class='ngtubevolume' type='range' min='0' max='100' ng-model='volume'></input>
 				    <span class='ngtubetimer'>{{currentTimeStr}} / {{durationStr}}</span>
 			    </div>

@@ -129,7 +129,7 @@ angular.module('ngTube',[])
 									$scope.duration = $scope.ytplayer.getDuration();
 									$scope.durationStr = formatSeconds($scope.duration,$scope.duration);
 									$scope.ytplayer.pauseVideo();
-								    //$scope.ytplayer.unMute();
+								    $scope.ytplayer.unMute();
 
 									$scope.scrollRatio  = $scope.scrollWidth / $scope.duration;
 									$scope.ytplayer.seekTo(0);
