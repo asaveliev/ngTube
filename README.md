@@ -4,16 +4,16 @@ ngTube
 http://rawgit.com/asaveliev/ngTube/master/prototype/index.html
 
 # TODO 
-* Make directive
+* Make directive - Done
 * Browser compatibility
 * Resizing
 * Loading progress bar
-* Time indicator
+* Time indicator - Done
 * Options (CC, Resolution)
-* Volume
+* Volume - Done
 * Full screen button
-* 100% width for bootstrap grid cell
-* Full bootstrap template
+* 100% width for bootstrap grid cell - Done
+* Full bootstrap template - Done
 * Paper template
 * Pivot template
 
