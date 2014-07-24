@@ -105,7 +105,7 @@ angular.module('ngTube',[])
 				    "<button ng-click='mute()'>"+
 				    	"<span ng-show='isMuted'>Mute</span><span ng-show='!isMuted'>Unmute</span></button> "+
 				    "<input class='ngtubevolume' type='range' min='0' max='100' ng-model='volume'></input>" +
-				    "<span class='ngtubetimer'>{{currentTime}} / {{duration}}</span>" +
+				    "<span class='ngtubetimer'>{{currentTimeStr}} / {{durationStr}}</span>" +
 			    "</div>" +
 			"</div> "
 		},
@@ -126,6 +126,7 @@ angular.module('ngTube',[])
 							var timeDetector = $interval(function(){
 								if ($scope.ytplayer.getDuration() > 0) {
 									$scope.duration = $scope.ytplayer.getDuration();
+									$scope.durationStr = formatSeconds($scope.duration,$scope.duration);
 									$scope.ytplayer.pauseVideo();
 								    //$scope.ytplayer.unMute();
 
@@ -144,6 +145,29 @@ angular.module('ngTube',[])
 			$scope.isMuted = false;
 			$scope.volume = 0;
 
+
+			function pad(n, width, z) {
+				z = z || '0';
+				n = n + '';
+				return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+			}
+
+			function formatSeconds(currentTime, totalTime){
+				var sec_num = parseInt(currentTime, 10); // don't forget the second param
+				var hours   = Math.floor(sec_num / 3600);
+				var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+				var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+
+				var t_sec_num = parseInt(totalTime, 10); // don't forget the second param
+				var t_hours   = Math.floor(t_sec_num / 3600);
+				var t_minutes = Math.floor((t_sec_num - (t_hours * 3600)) / 60);
+				var t_seconds = t_sec_num - (t_hours * 3600) - (t_minutes * 60);
+
+				var time    = (t_hours > 0 ? pad(hours,2)+':':"")+(t_minutes > 0 ? pad(minutes,2)+':':"")+pad(seconds,2);
+				return time;
+			}
+
 			$scope.cueVideo = function(){
 				$scope.ytplayer.cueVideoByUrl({ 
 					mediaContentUrl: $scope.mediaUrl 
@@ -155,17 +179,18 @@ angular.module('ngTube',[])
 					$scope.ytplayer.setVolume(volume);
 			});
 
-			/*var scroller = $interval(function () {
+			var scroller = $interval(function () {
 				if ($scope.ytplayer && $scope.ytplayer.getCurrentTime) {
 					$scope.currentTime = $scope.ytplayer.getCurrentTime();
+					$scope.currentTimeStr = formatSeconds($scope.currentTime, $scope.duration);
 
-					$scope.playerState = ytplayer.getPlayerState();
-					$scope.isMuted = ytplayer.isMuted();
+					$scope.playerState = $scope.ytplayer.getPlayerState();
+					$scope.isMuted = $scope.ytplayer.isMuted();
 
 					if (!$scope.dragging)
 		            	$scope.setPosition($scope.currentTime * $scope.scrollRatio);
 		        }
-			},100);*/
+			},100);
 
 	        $scope.$on("$destroy", function () {
 	          if (angular.isDefined(scroller)) {
