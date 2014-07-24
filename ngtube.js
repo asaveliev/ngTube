@@ -62,6 +62,7 @@ angular.module('ngTube',[])
 	            	var pos = e.x - timeline.offsetLeft;
 	            	if ($scope.dragging && pos < $scope.scrollWidth && pos >=0 ) {
 	                	$scope.setPosition(pos);
+	                	$scope.setCurrentTime(pos / $scope.scrollRatio);
 	                	lastDraggedPosition = pos;
 	                	$scope.$digest();
 	                }
@@ -182,15 +183,21 @@ angular.module('ngTube',[])
 			var scroller = $interval(function () {
 				if ($scope.ytplayer && $scope.ytplayer.getCurrentTime) {
 					$scope.currentTime = $scope.ytplayer.getCurrentTime();
-					$scope.currentTimeStr = formatSeconds($scope.currentTime, $scope.duration);
 
 					$scope.playerState = $scope.ytplayer.getPlayerState();
 					$scope.isMuted = $scope.ytplayer.isMuted();
 
-					if (!$scope.dragging)
+					if (!$scope.dragging){
 		            	$scope.setPosition($scope.currentTime * $scope.scrollRatio);
+						$scope.setCurrentTime($scope.currentTime);
+					}
 		        }
 			},100);
+
+			$scope.setCurrentTime = function(time){
+				$scope.currentTime = time;
+				$scope.currentTimeStr = formatSeconds(time, $scope.duration);
+			}
 
 	        $scope.$on("$destroy", function () {
 	          if (angular.isDefined(scroller)) {
