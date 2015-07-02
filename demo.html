@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.19/angular.min.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.19/angular.js"></script>
 <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
 <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
 
@@ -19,6 +19,6 @@ angular.module("myApp",["ngTube"],function(){});
 
 </head>
 <body ng-app="myApp">
-	<ng-tube media-url="https://www.youtube.com/v/QH2-TGUlwu4"></ng-tube>
+	<ng-tube url="https://www.youtube.com/v/QH2-TGUlwu4" status="playerStatus" duration="{{duration}}" quality="default" startseconds="0"></ng-tube>
 </body>
 </html>
