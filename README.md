@@ -19,3 +19,5 @@ http://rawgit.com/asaveliev/ngTube/master/bootstrap.html
 * Paper template
 * Pivot template
 
+
+
